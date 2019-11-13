@@ -1,0 +1,14 @@
+api:
+  https://api.ip.sb/ip
+mail:
+  smtp: smtp.office365.com
+  smtp-port: 587
+  user: YOUR_OUTLOOK_MAIL
+  password: YOUR_PASSWORD
+cloudflare:
+  url: https://api.cloudflare.com/client/v4/zones/%s/dns_records/%s
+  zone_id: YOUR_ZONE_ID
+  id: YOUR_ID
+  email: YOUR_AUTH_MAIL
+  api_key: YOUR_API_KEY
+  record: YOUR_RECORD
