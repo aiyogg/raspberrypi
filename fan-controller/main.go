@@ -32,7 +32,7 @@ func check(quit chan bool) {
 		log.Println(err)
 		quit <- true
 	}
-	if temp >= 54000 {
+	if temp >= 60000 {
 		pin.High()
 	} else if temp <= 46000 {
 		pin.Low()
