@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"io/ioutil"
@@ -18,7 +19,7 @@ var (
 )
 
 type Temperature struct {
-	ID          uint       `json:"id" gorm:"primary_key"`
+	ID          uint       `json:"-" gorm:"primary_key"`
 	Temperature float32    `json:"temperature" gorm:"type:numeric"`
 	CreatedAt   *time.Time `json:"time" `
 }
@@ -48,10 +49,42 @@ func indexHandle(w http.ResponseWriter, r *http.Request) {
 }
 func getTempHandle(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
-	startTime := query.Get("s")
-	endTime := query.Get("e")
-	w.Write([]byte(startTime + endTime))
+	start, _ := strconv.ParseInt(query.Get("s"), 10, 64)
+	end, _ := strconv.ParseInt(query.Get("e"), 10, 64)
+
+	now := time.Now()
+	var startTime, endTime time.Time
+	if start == 0 || start > now.Unix() {
+		startTime = now.AddDate(0, 0, -1)
+	} else {
+		startTime = time.Unix(start, 0)
+	}
+	if end == 0 || end < start || end > now.Unix() {
+		endTime = now
+	} else {
+		endTime = time.Unix(start, 0)
+	}
+	type Rsp struct {
+		Temperatures []Temperature `json:"temperatures"`
+		Code         int           `json:"code"`
+		Msg          string        `json:"msg"`
+	}
+	w.Header().Set("Content-Type", "application/json")
+	var temperatures []Temperature
+	if err := globalDB.Where("created_at BETWEEN ? AND ?", startTime, endTime).Find(&temperatures).Error; err != nil {
+		log.Println("DB query error", err)
+		if err := json.NewEncoder(w).Encode(Rsp{Temperatures: temperatures, Code: -1, Msg: "db error"}); err != nil {
+			log.Fatal("response error", err)
+		}
+	} else {
+		log.Println("response", Rsp{Temperatures: temperatures, Code: 0, Msg: ""})
+		if err := json.NewEncoder(w).Encode(Rsp{Temperatures: temperatures, Code: 0, Msg: ""}); err != nil {
+			log.Fatal("response error", err)
+		}
+	}
 }
+
+var globalDB *gorm.DB
 
 func main() {
 	// pin open
@@ -67,6 +100,7 @@ func main() {
 	if err != nil {
 		log.Println(err)
 	}
+	globalDB = db
 	defer db.Close()
 	db.DropTableIfExists(Temperature{})
 	db.CreateTable(Temperature{})
