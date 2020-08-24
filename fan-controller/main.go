@@ -2,8 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -11,17 +9,21 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
+
 	"github.com/stianeikeland/go-rpio/v4"
 )
 
 var (
-	pin = rpio.Pin(14)
+	pin      = rpio.Pin(14)
+	globalDB *gorm.DB
 )
 
 type Temperature struct {
 	ID          uint       `json:"-" gorm:"primary_key"`
 	Temperature float32    `json:"temperature" gorm:"type:numeric"`
-	CreatedAt   *time.Time `json:"time" `
+	CreatedAt   *time.Time `json:"time"`
 }
 
 func readTemp() (int64, error) {
@@ -70,21 +72,21 @@ func getTempHandle(w http.ResponseWriter, r *http.Request) {
 		Msg          string        `json:"msg"`
 	}
 	w.Header().Set("Content-Type", "application/json")
-	var temperatures []Temperature
+
+	var (
+		temperatures []Temperature
+		rsp          Rsp
+	)
 	if err := globalDB.Where("created_at BETWEEN ? AND ?", startTime, endTime).Find(&temperatures).Error; err != nil {
 		log.Println("DB query error", err)
-		if err := json.NewEncoder(w).Encode(Rsp{Temperatures: temperatures, Code: -1, Msg: "db error"}); err != nil {
-			log.Fatal("response error", err)
-		}
+		rsp = Rsp{Temperatures: temperatures, Code: 0, Msg: ""}
 	} else {
-		log.Println("response", Rsp{Temperatures: temperatures, Code: 0, Msg: ""})
-		if err := json.NewEncoder(w).Encode(Rsp{Temperatures: temperatures, Code: 0, Msg: ""}); err != nil {
-			log.Fatal("response error", err)
-		}
+		rsp = Rsp{Temperatures: temperatures, Code: -1, Msg: "db error"}
+	}
+	if err := json.NewEncoder(w).Encode(rsp); err != nil {
+		log.Println("response error", err)
 	}
 }
-
-var globalDB *gorm.DB
 
 func main() {
 	// pin open
