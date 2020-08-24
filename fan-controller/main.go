@@ -41,7 +41,7 @@ func readTemp() (int64, error) {
 func check(temp int64) {
 	if temp >= 58000 {
 		pin.High()
-	} else if temp <= 48000 {
+	} else if temp <= 50500 {
 		pin.Low()
 	}
 }
@@ -72,6 +72,8 @@ func getTempHandle(w http.ResponseWriter, r *http.Request) {
 		Msg          string        `json:"msg"`
 	}
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
 
 	var (
 		temperatures []Temperature
@@ -79,9 +81,9 @@ func getTempHandle(w http.ResponseWriter, r *http.Request) {
 	)
 	if err := globalDB.Where("created_at BETWEEN ? AND ?", startTime, endTime).Find(&temperatures).Error; err != nil {
 		log.Println("DB query error", err)
-		rsp = Rsp{Temperatures: temperatures, Code: 0, Msg: ""}
-	} else {
 		rsp = Rsp{Temperatures: temperatures, Code: -1, Msg: "db error"}
+	} else {
+		rsp = Rsp{Temperatures: temperatures, Code: 0, Msg: ""}
 	}
 	if err := json.NewEncoder(w).Encode(rsp); err != nil {
 		log.Println("response error", err)
@@ -109,7 +111,7 @@ func main() {
 
 	// timer
 	quit := make(chan bool)
-	ticker := time.NewTicker(time.Minute * 2)
+	ticker := time.NewTicker(time.Minute * 5)
 
 	go func() {
 		log.Println("goroutine...")
