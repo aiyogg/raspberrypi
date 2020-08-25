@@ -47,7 +47,7 @@ func check(temp int64) {
 }
 
 func indexHandle(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "static/index.html")
+	http.ServeFile(w, r, "./build/index.html")
 }
 func getTempHandle(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
@@ -131,8 +131,8 @@ func main() {
 	}()
 
 	// http server
-	fs := http.FileServer(http.Dir("./static"))
-	http.Handle("/static/", http.StripPrefix("/static", fs))
+	fs := http.FileServer(http.Dir("./build/static/"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
 	http.HandleFunc("/get", getTempHandle)
 	http.HandleFunc("/", indexHandle)
 	http.ListenAndServe(":10001", nil)
