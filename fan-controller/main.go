@@ -39,9 +39,9 @@ func readTemp() (int64, error) {
 }
 
 func check(temp int64) {
-	if temp >= 58000 {
+	if temp >= 58500 {
 		pin.High()
-	} else if temp <= 50500 {
+	} else if temp <= 51000 {
 		pin.Low()
 	}
 }
