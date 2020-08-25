@@ -14,7 +14,7 @@ class App extends React.Component {
       .then((rsp) => rsp.json())
       .then((json) => {
         console.log(json)
-        if (json.code !== 0) {
+        if (json.code === 0) {
           this.setState({
             temperatures: json.temperatures,
           })
