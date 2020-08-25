@@ -1,39 +1,41 @@
-import React from "react";
-import { Chart, Line, Point, Slider } from "bizcharts";
-import "./App.css";
+import React from 'react'
+import { Chart, Line, Point, Slider } from 'bizcharts'
+import './App.css'
 
 class App extends React.Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       temperatures: [],
-    };
+    }
   }
   componentWillMount() {
-    fetch("http://192.168.0.100:10001/get")
+    fetch('http://192.168.0.100:10001/get')
       .then((rsp) => rsp.json())
       .then((json) => {
-        console.log(json);
+        console.log(json)
         if (json.code !== 0) {
           this.setState({
             temperatures: json.temperatures,
-          });
+          })
         }
-      });
+      })
   }
   render() {
-    const data = this.state.temperatures;
+    const data = this.state.temperatures
     const scale = {
       time: {
-        formatter: (d) =>
-          new Date(d)
-            .toLocaleTimeString("zh-CN", { hour12: false })
-            .substring(0, 5),
+        formatter: toLocalTime,
       },
       temperature: {
-        alias: "温度",
+        alias: '温度',
       },
-    };
+    }
+    function toLocalTime(t) {
+      return new Date(t)
+        .toLocaleTimeString('zh-CN', { hour12: false })
+        .substring(0, 5)
+    }
 
     return (
       <div className="chart">
@@ -50,19 +52,11 @@ class App extends React.Component {
             color="l (270) 0:#1E9600 .5:#FFF200 1:#FF0000"
           />
           <Point size={2} position="time*temperature" />
-          <Slider
-            start={0.5}
-            end={1}
-            formatter={(val) =>
-              new Date(val)
-                .toLocaleTimeString("zh-CN", { hour12: false })
-                .substring(0, 5)
-            }
-          />
+          <Slider start={0.5} end={1} formatter={toLocalTime} />
         </Chart>
       </div>
-    );
+    )
   }
 }
 
-export default App;
+export default App
