@@ -1,0 +1,19 @@
+version: '3'
+services: 
+  pg:
+    image: postgres:9.6.20-alpine
+    restart: always
+    volumes:
+      - "/usr/local/data/postgresql/data:/var/lib/postgresql/data"
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=chuck # 用户名
+      - POSTGRES_PASSWORD=chuck@2020 # 数据库密码
+      - POSTGRES_DB=pgdb # 数据库名
+  fan_controller_app:
+    build: .
+    depends_on: 
+      - pg
+    ports:
+      - "10001:10001"
