@@ -11,9 +11,10 @@ services:
       - POSTGRES_USER=chuck # 用户名
       - POSTGRES_PASSWORD=chuck@2020 # 数据库密码
       - POSTGRES_DB=pgdb # 数据库名
-  fan_controller_app:
+  app:
     build: .
+    restart: always
     depends_on: 
       - pg
     ports:
-      - "10001:10001"
+      - 10001:10001
