@@ -1,7 +1,7 @@
 version: '3'
 services: 
   pg:
-    image: postgres:9.6.20-alpine
+    image: postgres
     restart: always
     volumes:
       - "/usr/local/data/postgresql/data:/var/lib/postgresql/data"

@@ -12,7 +12,7 @@ COPY front-end/build ./build
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm go build -o ./app ./main.go
 
 # target
-FROM alpine:3.12
+FROM arm32v7/debian:stable-slim
 
 WORKDIR /app
 COPY --from=builder /app .
