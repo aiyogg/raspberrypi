@@ -6,7 +6,7 @@ services:
     volumes:
       - "/usr/local/data/postgresql/data:/var/lib/postgresql/data"
     ports:
-      - 5432:5432
+      - "5432:5432"
     environment:
       - POSTGRES_USER=chuck # 用户名
       - POSTGRES_PASSWORD=chuck@2020 # 数据库密码
@@ -19,4 +19,4 @@ services:
     depends_on: 
       - pg
     ports:
-      - 10001:10001
+      - "10001:10001"
