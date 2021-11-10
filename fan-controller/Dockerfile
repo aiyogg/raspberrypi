@@ -17,6 +17,8 @@ FROM arm32v7/debian:stable-slim
 WORKDIR /app
 COPY --from=builder /app .
 
+VOLUME /sys/class/thermal/thermal_zone0
+
 EXPOSE 10001
 
 CMD ["./app"]

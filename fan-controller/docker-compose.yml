@@ -14,6 +14,8 @@ services:
   app:
     build: .
     restart: always
+    volumes:
+      - /sys/class/thermal/thermal_zone0:/sys/class/thermal/thermal_zone0
     depends_on: 
       - pg
     ports:
